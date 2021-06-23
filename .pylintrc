@@ -1,0 +1,23 @@
+[MASTER]
+#persistent=no
+ignore=tests
+
+[MESSAGES CONTROL]
+disable=
+    fixme,
+    invalid-name,
+    locally-disabled,
+    missing-function-docstring,
+    missing-class-docstring,
+    missing-module-docstring,
+    too-few-public-methods,
+    too-many-arguments,
+    too-many-instance-attributes,
+
+
+[REPORTS]
+reports=no
+
+[SIMILARITIES]
+min-similarity-lines=999
+
