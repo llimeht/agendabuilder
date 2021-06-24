@@ -11,6 +11,7 @@ from .meeting import Agenda
 from .agendalisting import AgendaListing
 from .pack import MeetingPack
 from . import config
+from .locator import FileLocator
 
 
 def configure(filename: Union[str, Path]) -> Agenda:
@@ -19,20 +20,20 @@ def configure(filename: Union[str, Path]) -> Agenda:
     return meeting
 
 
-def build_listing(meeting: Agenda) -> None:
+def build_listing(meeting: Agenda, locator: FileLocator) -> None:
     agenda_template = meeting.metadata["agenda_template"]
     agenda_draft = meeting.metadata["agenda_draft"]
 
-    listing = AgendaListing(meeting, agenda_template)
+    listing = AgendaListing(meeting, agenda_template, locator)
     listing.build()
     listing.save(agenda_draft)
 
 
-def build_pack(meeting: Agenda) -> None:
+def build_pack(meeting: Agenda, locator: FileLocator) -> None:
     agenda_final = meeting.metadata["agenda_final"]
     meeting_pack = meeting.metadata["meeting_pack"]
 
-    pack = MeetingPack(meeting, agenda_final)
+    pack = MeetingPack(meeting, agenda_final, locator)
     pack.build()
     pack.save(meeting_pack)
 
@@ -93,11 +94,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     run_build_pack = args.step == "pack"
 
     meeting = configure(config_filename)
+    locator = FileLocator(config_filename)
 
     if run_build_listing:
-        build_listing(meeting)
+        build_listing(meeting, locator)
 
     if run_build_pack:
-        build_pack(meeting)
+        build_pack(meeting, locator)
 
     return 0

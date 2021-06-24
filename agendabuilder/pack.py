@@ -18,6 +18,7 @@ from reportlab.pdfgen import canvas  # type: ignore
 import reportlab.lib.colors  # type: ignore
 
 from .meeting import Agenda
+from .locator import FileLocator
 
 
 class AgendaPdfPart:
@@ -168,9 +169,15 @@ class AgendaCoverPdfPart(AgendaPdfPart):
 
 
 class MeetingPack:
-    def __init__(self, meeting: Agenda, agendapdf: Union[str, Path]) -> None:
+    def __init__(
+        self,
+        meeting: Agenda,
+        agendapdf: Union[str, Path],
+        locator: Optional[FileLocator] = None,
+    ) -> None:
         self.meeting = meeting
         self.agendapdf = agendapdf
+        self.locator = locator or Path
         self.agenda_bookmark = "Agenda"
         self.buffer = io.BytesIO()
 
@@ -179,7 +186,9 @@ class MeetingPack:
         pagenum = 1
 
         def append(
-            stream: IO[bytes], bookmark: Optional[str], filename: Optional[Union[str, Path]]
+            stream: IO[bytes],
+            bookmark: Optional[str],
+            filename: Optional[Union[str, Path]],
         ) -> int:
             pdf_reader = PdfFileReader(stream)
             numpages = pdf_reader.getNumPages()  # type: int
@@ -187,17 +196,17 @@ class MeetingPack:
             print("  Merged file: %s [%s] " % (filename, bookmark))
             return numpages
 
-        numberer = AgendaPageNumPdfPart(self.agendapdf, pagenum)
+        numberer = AgendaPageNumPdfPart(str(self.locator(self.agendapdf)), pagenum)
         pagenum += append(numberer(), self.agenda_bookmark, self.agendapdf)
 
         for itemnum, bookmark, filename, extras in self.meeting.enclosures():
             print("Item: [%s]" % (bookmark))
             # pass pdf stream through stampers
-            coverer = AgendaCoverPdfPart(filename, itemnum)
+            coverer = AgendaCoverPdfPart(str(self.locator(filename)), itemnum)
             numberer = AgendaPageNumPdfPart(coverer(), pagenum)
             pagenum += append(numberer(), bookmark, filename)
             for extra_filename in extras:
-                with open(extra_filename, "rb") as fh:
+                with open(self.locator(extra_filename), "rb") as fh:
                     numberer = AgendaPageNumPdfPart(fh, pagenum)
                     pagenum += append(numberer(), None, extra_filename)
 
@@ -206,5 +215,5 @@ class MeetingPack:
         self.buffer.seek(0)
 
     def save(self, filename: Union[str, Path]) -> None:
-        with open(filename, "wb") as fh:
+        with open(self.locator(filename), "wb") as fh:
             fh.write(self.buffer.getvalue())

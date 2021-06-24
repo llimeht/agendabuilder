@@ -14,12 +14,20 @@ from docx.oxml.ns import qn  # type: ignore
 import docx.table  # type: ignore
 
 from .meeting import Agenda, AgendaItem, AgendaHeading
+from .locator import FileLocator
 
 
 class AgendaListing:
-    def __init__(self, meeting: Agenda, template: str) -> None:
+    def __init__(
+        self,
+        meeting: Agenda,
+        template: Union[str, Path],
+        locator: Optional[FileLocator] = None,
+    ) -> None:
         self.meeting = meeting
         self.template = template
+        self.locator = locator or Path
+
         self.star = "🟊 "
         self.star_font = "Symbola"
         self.agenda_heading_style = "AgendaHeading"
@@ -43,7 +51,8 @@ class AgendaListing:
         return cell
 
     def load_template(self) -> None:
-        self.document = docx.Document(self.template)
+        resolved_filename = self.locator(self.template)
+        self.document = docx.Document(resolved_filename)
 
     def find_table(self) -> docx.table.Table:
         return self.document.tables[0]
@@ -111,4 +120,5 @@ class AgendaListing:
         self.fill_table(table)
 
     def save(self, filename: Union[str, Path]) -> None:
-        self.document.save(filename)
+        resolved_filename = self.locator(filename)
+        self.document.save(resolved_filename)
