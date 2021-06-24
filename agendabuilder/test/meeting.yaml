@@ -1,0 +1,48 @@
+---
+- metadata:
+    committee: Agenda Builder Steering Committee
+    date: 1 Jan 1970
+    time: 12:00
+    location: Null Island
+    agenda_template: agenda-template.docx
+    agenda_draft: agenda-draft.docx
+    agenda_final: agenda-final.pdf
+    meeting_pack: meeting-pack.pdf
+
+- heading: Procedural matters
+
+- item: Welcome & apologies
+  who: Chair
+  action: Discuss
+
+- item: Minutes and actions from last meeting
+  who: Chair
+  action: Approve
+
+- heading: Reports
+
+- item: Chair's report
+  who: Chair
+  action: Discuss
+
+- heading: Part 1 of the meeting
+
+- item: Consultation report on design
+  who: ABC
+  cover: consultation-cover.pdf
+  pages:
+    - consultation report.pdf
+    - consultation report appendices.pdf
+  action: Note
+
+- item: Future consultation plans
+  who: ABC
+  cover: consultation-future-cover.pdf
+  starred: True
+  action: Discuss
+
+- heading: Part 2 of the meeting
+
+- item: Business without notice
+  who: Chair
+  action: Discuss
