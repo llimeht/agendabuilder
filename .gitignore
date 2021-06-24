@@ -1,0 +1,11 @@
+__pycache__
+.mypy_cache
+installer/build/
+installer/dist/
+build/
+dist/
+.ipynb_checkpoints/
+*.ipynb
+agendabuilder.egg-info/
+.coverage
+.directory
