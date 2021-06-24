@@ -2,6 +2,7 @@
 Representation of the meeting pack for a meeting
 """
 
+from pathlib import Path
 import io
 
 from typing import (
@@ -167,7 +168,7 @@ class AgendaCoverPdfPart(AgendaPdfPart):
 
 
 class MeetingPack:
-    def __init__(self, meeting: Agenda, agendapdf: str) -> None:
+    def __init__(self, meeting: Agenda, agendapdf: Union[str, Path]) -> None:
         self.meeting = meeting
         self.agendapdf = agendapdf
         self.agenda_bookmark = "Agenda"
@@ -178,7 +179,7 @@ class MeetingPack:
         pagenum = 1
 
         def append(
-            stream: IO[bytes], bookmark: Optional[str], filename: Optional[str]
+            stream: IO[bytes], bookmark: Optional[str], filename: Optional[Union[str, Path]]
         ) -> int:
             pdf_reader = PdfFileReader(stream)
             numpages = pdf_reader.getNumPages()  # type: int
@@ -204,6 +205,6 @@ class MeetingPack:
 
         self.buffer.seek(0)
 
-    def save(self, filename: str) -> None:
+    def save(self, filename: Union[str, Path]) -> None:
         with open(filename, "wb") as fh:
             fh.write(self.buffer.getvalue())

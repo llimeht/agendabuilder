@@ -1,11 +1,15 @@
-from typing import List
+from pathlib import Path
+from typing import (
+    List,
+    Union,
+)
 
 import ruamel.yaml
 
 from .meeting import Agenda, AgendaItem, AgendaHeading, ItemBase
 
 
-def load(filename: str) -> Agenda:
+def load(filename: Union[str, Path]) -> Agenda:
     with open(filename, "rt") as fh:
         details = ruamel.yaml.safe_load(fh)  # type: ignore
 

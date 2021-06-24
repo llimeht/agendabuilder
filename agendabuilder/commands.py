@@ -1,8 +1,10 @@
 import argparse
+from pathlib import Path
 
 from typing import (
     List,
     Optional,
+    Union,
 )
 
 from .meeting import Agenda
@@ -11,7 +13,7 @@ from .pack import MeetingPack
 from . import config
 
 
-def configure(filename: str) -> Agenda:
+def configure(filename: Union[str, Path]) -> Agenda:
     meeting = config.load(filename)
     print(meeting)
     return meeting

@@ -2,6 +2,12 @@
 Representation of the agenda summary given to attendees of a meeting
 """
 
+from pathlib import Path
+from typing import (
+    Optional,
+    Union,
+)
+
 import docx  # type: ignore
 from docx.oxml import OxmlElement  # type: ignore
 from docx.oxml.ns import qn  # type: ignore
@@ -104,5 +110,5 @@ class AgendaListing:
         table = self.find_table()
         self.fill_table(table)
 
-    def save(self, filename: str) -> None:
+    def save(self, filename: Union[str, Path]) -> None:
         self.document.save(filename)
