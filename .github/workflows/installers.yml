@@ -1,0 +1,85 @@
+name: Installer
+
+on:
+  [push, pull_request]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  installer:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        python-version: [3.9]
+
+    steps:
+
+    - name: Obtain source from git
+      uses: actions/checkout@v1
+
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    ### Caching of pip downloads and local wheel builds
+
+    - name: Obtain pip cache (Windows)
+      uses: actions/cache@v2
+      if: startsWith(runner.os, 'Windows')
+      with:
+        path: ~\AppData\Local\pip\Cache
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/installer.yml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.python-version }}-
+          ${{ runner.os }}-pip-
+
+    ### Installation of build-dependencies
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install wheel setuptools
+        python -m pip install python-docx ruamel.yaml PyPDF2 reportlab
+
+    - name: Install utilities to build installer
+      run: |
+        python -m pip install pyinstaller
+
+    - name: Build and install
+      run: |
+        python -m pip install .
+
+    ### Build the installer
+
+    - name: Build pyinstaller
+      run: |
+        cd installer
+        pyinstaller.exe agendabuilder.spec
+
+    - name: Make tarball of pyinstaller output directory
+      run: |
+        cd installer/dist
+        tar zcf agendabuilder-pyinstaller-dist.tar.gz agendabuilder
+
+    - name: Publish pyinstaller components
+      uses: actions/upload-artifact@v2
+      with:
+        name: AgendaBuilder-PyInstaller-Dist-${{ matrix.os }}-${{ matrix.python-version }}-${{ github.sha }}
+        path: installer/dist/agendabuilder-pyinstaller-dist.tar.gz
+        if-no-files-found: error
+
+    - name: Build INNO setup package
+      run: |
+        iscc installer/installer.iss
+
+    - name: Publish installer package
+      uses: actions/upload-artifact@v2
+      with:
+        name: AgendaBuilder-Installer-${{ matrix.os }}-${{ matrix.python-version }}-${{ github.sha }}
+        path: installer/Output/setupAgendaBuilder.exe
+        if-no-files-found: error
